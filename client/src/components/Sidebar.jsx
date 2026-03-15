@@ -1,0 +1,36 @@
+import { Moon, Sun, LogOut } from "lucide-react";
+
+export default function Sidebar({ user, onLogout, isDark, onToggleTheme }) {
+  return (
+    <aside className="flex h-full w-full flex-row items-center justify-between gap-4 rounded-2xl border border-[var(--line)] bg-[var(--bg-panel)] p-4 backdrop-blur md:w-24 md:flex-col md:justify-start">
+      <div className="flex items-center gap-3 md:flex-col">
+        <div className="grid h-11 w-11 place-items-center rounded-xl bg-[var(--accent)] font-bold text-slate-950">
+          {user?.username?.slice(0, 1)?.toUpperCase() || "U"}
+        </div>
+        <div className="md:hidden">
+          <p className="text-sm font-semibold">{user?.username}</p>
+          <p className="text-xs text-[var(--text-subtle)]">online</p>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2 md:mt-auto md:flex-col">
+        <button
+          type="button"
+          onClick={onToggleTheme}
+          className="rounded-xl border border-[var(--line)] bg-[var(--bg-panel-strong)] p-2"
+          aria-label="Toggle dark mode"
+        >
+          {isDark ? <Sun size={18} /> : <Moon size={18} />}
+        </button>
+        <button
+          type="button"
+          onClick={onLogout}
+          className="rounded-xl border border-[var(--line)] bg-[var(--bg-panel-strong)] p-2"
+          aria-label="Logout"
+        >
+          <LogOut size={18} />
+        </button>
+      </div>
+    </aside>
+  );
+}

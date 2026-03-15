@@ -1,0 +1,59 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-main: #ecf3ff;
+  --bg-panel: rgba(255, 255, 255, 0.74);
+  --bg-panel-strong: rgba(255, 255, 255, 0.9);
+  --text-main: #0f172a;
+  --text-subtle: #475569;
+  --accent: #00b7ff;
+  --accent-2: #ffd447;
+  --line: rgba(15, 23, 42, 0.08);
+}
+
+.dark {
+  --bg-main: #0a1224;
+  --bg-panel: rgba(15, 23, 42, 0.8);
+  --bg-panel-strong: rgba(15, 23, 42, 0.95);
+  --text-main: #f8fafc;
+  --text-subtle: #cbd5e1;
+  --accent: #22d3ee;
+  --accent-2: #fde047;
+  --line: rgba(148, 163, 184, 0.22);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  font-family: "Space Grotesk", sans-serif;
+  color: var(--text-main);
+  background:
+    radial-gradient(circle at 20% 20%, rgba(0, 183, 255, 0.18), transparent 40%),
+    radial-gradient(circle at 80% 10%, rgba(255, 212, 71, 0.2), transparent 35%),
+    linear-gradient(165deg, var(--bg-main), #dbeafe 120%);
+}
+
+.dark body {
+  background:
+    radial-gradient(circle at 10% 10%, rgba(34, 211, 238, 0.2), transparent 35%),
+    radial-gradient(circle at 90% 90%, rgba(253, 224, 71, 0.08), transparent 40%),
+    linear-gradient(165deg, #030712, var(--bg-main) 80%);
+}
+
+.font-mono-display {
+  font-family: "IBM Plex Mono", monospace;
+}
