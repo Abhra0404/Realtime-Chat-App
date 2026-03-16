@@ -1,15 +1,15 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { Send, Paperclip, Smile, X } from "lucide-react";
 
 export default function MessageInput({ onSend, onTyping, onStopTyping }) {
   const [value, setValue] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [isSending, setIsSending] = useState(false);
+  const inputRef = useRef(null);
 
   const submit = async (event) => {
     event.preventDefault();
-    if (!value.trim() && !selectedFile) {
-      return;
-    }
+    if (!value.trim() && !selectedFile) return;
 
     try {
       setIsSending(true);
@@ -23,58 +23,57 @@ export default function MessageInput({ onSend, onTyping, onStopTyping }) {
   };
 
   return (
-    <form
-      onSubmit={submit}
-      className="sticky bottom-0 z-20 border-t border-[var(--line)] bg-[var(--bg-sidebar)] px-3 py-3 md:px-4"
-      style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
-    >
-      {selectedFile ? (
-        <div className="mb-2 flex items-center justify-between rounded-lg border border-[var(--line)] bg-[var(--bg-panel)] px-3 py-2 text-xs">
-          <span className="truncate">Attached: {selectedFile.name}</span>
-          <button
-            type="button"
-            onClick={() => setSelectedFile(null)}
-            className="rounded border border-[var(--line)] px-2 py-0.5 text-[var(--text-subtle)]"
-          >
-            Remove
+    <div className="p-4 bg-[var(--bg-sidebar)] border-t border-[var(--line)]">
+      {selectedFile && (
+        <div className="mb-3 flex items-center justify-between p-2 rounded-xl bg-[var(--bg-panel)] border border-[var(--line)] text-xs animate-in slide-in-from-bottom-2">
+          <div className="flex items-center gap-2 truncate px-2">
+            <Paperclip size={14} className="text-[var(--accent)]" />
+            <span className="truncate max-w-[200px]">{selectedFile.name}</span>
+          </div>
+          <button onClick={() => setSelectedFile(null)} className="p-1.5 rounded-full hover:bg-red-500/10 text-red-500 transition">
+            <X size={14} />
           </button>
         </div>
-      ) : null}
+      )}
 
-      <div className="flex gap-2">
-        <label className="grid h-11 w-11 cursor-pointer place-items-center rounded-full border border-[var(--line)] bg-[var(--bg-panel)] text-lg text-[var(--text-subtle)] transition hover:text-[var(--text-main)]">
-          +
+      <form onSubmit={submit} className="flex gap-2 items-center">
+        <div className="flex-1 relative group">
           <input
-            type="file"
-            className="hidden"
-            onChange={(event) => {
-              const file = event.target.files?.[0] || null;
-              setSelectedFile(file);
+            ref={inputRef}
+            type="text"
+            value={value}
+            onChange={(e) => {
+              setValue(e.target.value);
+              if (e.target.value.trim()) onTyping();
+              else onStopTyping();
             }}
+            placeholder="Type a message..."
+            className="w-full bg-[var(--bg-panel)] border border-[var(--line)] rounded-2xl py-3 pl-12 pr-4 text-sm focus:ring-2 focus:ring-[var(--accent)]/30 transition-all outline-none"
           />
-        </label>
+          <button type="button" className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition text-[var(--text-subtle)]">
+            <Smile size={18} />
+          </button>
+        </div>
 
-        <input
-          value={value}
-          onChange={(event) => {
-            setValue(event.target.value);
-            if (event.target.value.trim()) {
-              onTyping();
-            } else {
-              onStopTyping();
-            }
-          }}
-          placeholder="Type a message"
-          className="w-full rounded-full border border-[var(--line)] bg-[var(--bg-panel)] px-4 py-2.5 outline-none focus:ring-2 focus:ring-[var(--accent)]/40"
-        />
-        <button
-          type="submit"
-          disabled={isSending}
-          className="rounded-full bg-[var(--accent-strong)] px-5 py-2.5 font-semibold text-white transition hover:brightness-105 disabled:opacity-70"
-        >
-          {isSending ? "Sending..." : "Send"}
-        </button>
-      </div>
-    </form>
+        <div className="flex items-center gap-2">
+          <label className="cursor-pointer p-3 rounded-full hover:bg-[var(--bg-panel)] transition text-[var(--text-subtle)] hover:text-[var(--text-main)]">
+            <Paperclip size={20} />
+            <input
+              type="file"
+              className="hidden"
+              onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+            />
+          </label>
+          <button
+            type="submit"
+            disabled={isSending || (!value.trim() && !selectedFile)}
+            className="p-3.5 rounded-full bg-[var(--accent)] text-white shadow-lg shadow-[var(--accent)]/30 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:scale-100 disabled:shadow-none transition-all"
+          >
+            <Send size={20} fill="currentColor" />
+          </button>
+        </div>
+      </form>
+    </div>
   );
 }
+

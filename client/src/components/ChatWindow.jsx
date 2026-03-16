@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
+import { Info } from "lucide-react";
 import MessageBubble from "./MessageBubble";
+import ChatHeader from "./ChatHeader";
 
 export default function ChatWindow({
   conversation,
@@ -16,7 +18,8 @@ export default function ChatWindow({
   onLoadMore,
   onReact,
   onEdit,
-  onDelete
+  onDelete,
+  onToggleProfile
 }) {
   const scrollerRef = useRef(null);
   const previousHeightRef = useRef(0);
@@ -62,35 +65,46 @@ export default function ChatWindow({
   };
 
   return (
-    <section className="flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--bg-panel)]">
-      <header className="flex items-center gap-3 border-b border-[var(--line)] bg-[var(--bg-sidebar)] px-4 py-3">
-        {showBackButton ? (
-          <button
-            type="button"
-            onClick={onBack}
-            className="grid h-9 w-9 place-items-center rounded-full border border-[var(--line)] bg-[var(--bg-panel)] text-lg"
-            aria-label="Back to chats"
-          >
-            ←
-          </button>
-        ) : null}
-        <span className="grid h-10 w-10 place-items-center rounded-full bg-[var(--accent-strong)] text-sm font-bold text-white">
-          {(title || "C").slice(0, 1).toUpperCase()}
-        </span>
-        <div>
-          <h2 className="text-base font-bold">{conversation ? title : "Pick a chat"}</h2>
-          {conversation ? <p className="text-xs text-[var(--text-subtle)]">{subtitle}</p> : null}
-        </div>
-      </header>
+    <section className="flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--bg-panel)] shadow-sm">
+      <ChatHeader 
+        conversation={conversation}
+        title={title}
+        subtitle={subtitle}
+        showBackButton={showBackButton}
+        onBack={onBack}
+        onToggleProfile={onToggleProfile}
+      />
 
-      <div ref={scrollerRef} onScroll={handleScroll} className="chat-pattern flex-1 space-y-3 overflow-y-auto px-3 py-4 md:px-6">
+      <div ref={scrollerRef} onScroll={handleScroll} className="chat-pattern flex-1 space-y-3 overflow-y-auto px-4 py-6">
         {hasMore ? (
-          <p className="mx-auto w-fit rounded-full bg-black/10 px-3 py-1 text-center text-[11px] text-[var(--text-subtle)]">
-            {isLoadingMore ? "Loading older messages..." : "Scroll up for older messages"}
-          </p>
+          <div className="flex justify-center mb-4">
+            <button 
+              onClick={onLoadMore}
+              disabled={isLoadingMore}
+              className="px-4 py-1.5 rounded-full bg-[var(--bg-sidebar)] border border-[var(--line)] text-[10px] font-bold uppercase tracking-wider text-[var(--text-subtle)] hover:text-[var(--text-main)] transition"
+            >
+              {isLoadingMore ? "Loading..." : "Load older messages"}
+            </button>
+          </div>
         ) : null}
-        {messages.length === 0 ? (
-          <p className="mx-auto mt-8 w-fit rounded-xl bg-black/10 px-4 py-2 text-sm text-[var(--text-subtle)]">No messages yet. Say hi.</p>
+        
+        {!conversation ? (
+          <div className="h-full flex flex-col items-center justify-center text-center opacity-50 space-y-4">
+            <div className="h-20 w-20 rounded-full bg-[var(--bg-sidebar)] grid place-items-center shadow-inner">
+              <Info size={40} className="text-[var(--text-subtle)]" />
+            </div>
+            <div>
+              <p className="text-lg font-bold text-[var(--text-main)]">PulseChat</p>
+              <p className="text-sm font-medium">Select a conversation to start messaging.<br/>Your messages are private and secure.</p>
+            </div>
+          </div>
+        ) : messages.length === 0 ? (
+          <div className="h-full flex flex-col items-center justify-center text-center opacity-50 space-y-3">
+            <div className="h-16 w-16 rounded-full bg-[var(--bg-sidebar)] grid place-items-center">
+              <Info size={32} className="text-[var(--text-subtle)]" />
+            </div>
+            <p className="text-sm font-medium">No messages here yet.<br/>Start the conversation!</p>
+          </div>
         ) : (
           messages.map((message) => (
             <MessageBubble
@@ -107,8 +121,14 @@ export default function ChatWindow({
       </div>
 
       {typingUsers.length ? (
-        <p className="border-t border-[var(--line)] bg-[var(--bg-panel)] px-4 py-1.5 text-xs text-emerald-500">{typingUsers.join(", ")} typing...</p>
+        <div className="px-6 py-2 bg-[var(--bg-app)]/30 backdrop-blur-md border-t border-[var(--line)]">
+          <p className="text-[11px] font-bold text-emerald-500 animate-pulse">
+            {typingUsers.join(", ")} is typing...
+          </p>
+        </div>
       ) : null}
     </section>
   );
 }
+
+

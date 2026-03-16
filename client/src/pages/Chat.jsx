@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
-import { LogOut, Moon, Sun } from "lucide-react";
-import Sidebar from "../components/Sidebar";
+import { motion, AnimatePresence } from "framer-motion";
+import { LogOut, Moon, Sun, Menu } from "lucide-react";
 import ChannelList from "../components/ChannelList";
 import ChatWindow from "../components/ChatWindow";
 import MessageInput from "../components/MessageInput";
+import ProfilePanel from "../components/ProfilePanel";
 import { usersApi, conversationsApi, messagesApi, uploadsApi } from "../services/api";
 import { useSocket } from "../hooks/useSocket";
 
@@ -24,7 +24,7 @@ const getMessagePreview = (message) => {
 export default function Chat({ token, user, onLogout }) {
   const socket = useSocket(token);
   const currentUserId = user?._id || user?.id;
-  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 1024);
   const [mobileView, setMobileView] = useState("list");
   const [users, setUsers] = useState([]);
   const [conversations, setConversations] = useState([]);
@@ -35,6 +35,7 @@ export default function Chat({ token, user, onLogout }) {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [typingIds, setTypingIds] = useState([]);
   const [isDark, setIsDark] = useState(() => localStorage.getItem("pulsechat_theme") === "dark");
+  const [isProfileOpen, setIsProfileOpen] = useState(true);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
@@ -43,7 +44,7 @@ export default function Chat({ token, user, onLogout }) {
 
   useEffect(() => {
     const onResize = () => {
-      const mobile = window.innerWidth < 768;
+      const mobile = window.innerWidth < 1024;
       setIsMobile(mobile);
       if (!mobile) {
         setMobileView("chat");
@@ -104,14 +105,11 @@ export default function Chat({ token, user, onLogout }) {
       setConversations(fetched);
       if (fetched.length && !activeConversation) {
         setActiveConversation(fetched[0]);
-        if (isMobile) {
-          setMobileView("list");
-        }
       }
     };
 
     init();
-  }, [isMobile]);
+  }, []);
 
   useEffect(() => {
     if (!activeConversation?._id) {
@@ -414,8 +412,6 @@ export default function Chat({ token, user, onLogout }) {
       : "last seen recently"
     : "";
 
-  const mobileHeaderTitle = mobileView === "list" ? "Chats" : activeTitle || "Chat";
-
   const chatsListPane = (
     <ChannelList
       conversations={conversations}
@@ -424,11 +420,15 @@ export default function Chat({ token, user, onLogout }) {
       onSelectConversation={selectConversation}
       onStartChat={startChatWithUser}
       mobileMode={isMobile}
+      currentUser={user}
+      onLogout={onLogout}
+      isDark={isDark}
+      onToggleTheme={() => setIsDark((v) => !v)}
     />
   );
 
   const chatPane = (
-    <div className="flex min-h-0 flex-col gap-0 md:gap-3">
+    <div className="flex h-full flex-col gap-0">
       <ChatWindow
         conversation={activeConversation}
         title={activeTitle}
@@ -445,6 +445,7 @@ export default function Chat({ token, user, onLogout }) {
         onReact={reactToMessage}
         onEdit={editMessage}
         onDelete={deleteMessage}
+        onToggleProfile={() => setIsProfileOpen(!isProfileOpen)}
       />
       {activeConversation ? (
         <MessageInput
@@ -468,52 +469,41 @@ export default function Chat({ token, user, onLogout }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35 }}
-      className="h-screen p-2 md:p-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="h-screen bg-[var(--bg-app)] md:p-4 text-[var(--text-main)]"
     >
-      {isMobile ? (
-        <div className="flex h-full flex-col rounded-2xl border border-[var(--line)] bg-[var(--bg-app)] p-2 shadow-2xl">
-          <header className="mb-2 flex items-center justify-between rounded-xl border border-[var(--line)] bg-[var(--bg-sidebar)] px-3 py-2">
-            <div className="flex items-center gap-2">
-              <span className="grid h-9 w-9 place-items-center rounded-full bg-[var(--accent-strong)] text-sm font-bold text-white">
-                {user?.username?.slice(0, 1)?.toUpperCase() || "U"}
-              </span>
-              <div>
-                <p className="text-sm font-bold leading-tight">{mobileHeaderTitle}</p>
-                <p className="text-[11px] text-[var(--text-subtle)]">{user?.username}</p>
-              </div>
+      <div className="h-full max-w-[1600px] mx-auto flex gap-4 overflow-hidden">
+        {isMobile ? (
+          <div className="w-full h-full flex flex-col p-2">
+            {mobileView === "list" ? chatsListPane : chatPane}
+          </div>
+        ) : (
+          <>
+            {/* Column 1: Chats List */}
+            <div className="w-80 flex-shrink-0">
+              {chatsListPane}
             </div>
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={() => setIsDark((value) => !value)}
-                className="grid h-9 w-9 place-items-center rounded-full border border-[var(--line)] bg-[var(--bg-panel)]"
-                aria-label="Toggle dark mode"
-              >
-                {isDark ? <Sun size={16} /> : <Moon size={16} />}
-              </button>
-              <button
-                type="button"
-                onClick={onLogout}
-                className="grid h-9 w-9 place-items-center rounded-full border border-[var(--line)] bg-[var(--bg-panel)] text-red-500"
-                aria-label="Logout"
-              >
-                <LogOut size={16} />
-              </button>
-            </div>
-          </header>
 
-          <div className="min-h-0 flex-1">{mobileView === "list" ? chatsListPane : chatPane}</div>
-        </div>
-      ) : (
-        <div className="grid h-full grid-cols-1 gap-2 rounded-2xl border border-[var(--line)] bg-[var(--bg-app)] p-2 shadow-2xl md:grid-cols-[84px_360px_1fr] md:gap-0 md:rounded-3xl md:p-3">
-          <Sidebar user={user} onLogout={onLogout} isDark={isDark} onToggleTheme={() => setIsDark((v) => !v)} />
-          {chatsListPane}
-          {chatPane}
-        </div>
-      )}
+            {/* Column 2: Chat Window */}
+            <div className="flex-1 min-w-0">
+              {chatPane}
+            </div>
+
+            {/* Column 3: Profile Panel */}
+            <AnimatePresence>
+              {isProfileOpen && activeConversation && (
+                <ProfilePanel 
+                  user={activeConversation.otherParticipant} 
+                  isOpen={isProfileOpen} 
+                  onClose={() => setIsProfileOpen(false)} 
+                />
+              )}
+            </AnimatePresence>
+          </>
+        )}
+      </div>
     </motion.div>
   );
 }
+

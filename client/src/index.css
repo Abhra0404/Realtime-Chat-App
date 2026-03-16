@@ -1,23 +1,25 @@
-@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --bg-main: #dfd9d4;
-  --bg-app: #efeae2;
-  --bg-sidebar: #f8f5f2;
+  /* WhatsApp Light Mode - Sage Tints instead of Grey */
+  --bg-main: #e6eee9;    /* Muted Mint instead of Grey */
+  --bg-app: #f0f5f2;     /* Very pale sage */
+  --bg-sidebar: #e9f0ec; 
   --bg-panel: #ffffff;
-  --bg-panel-strong: #f5f7f9;
-  --text-main: #102329;
-  --text-subtle: #64757b;
+  --bg-panel-strong: #deede5;
+  --text-main: #075e54;  /* Deep Forest instead of Black */
+  --text-subtle: #567e73; /* Muted Sage instead of Grey */
   --accent: #25d366;
   --accent-strong: #128c7e;
-  --line: rgba(9, 30, 36, 0.1);
+  --line: rgba(7, 94, 84, 0.1);
   --incoming: #ffffff;
   --outgoing: #d9fdd3;
-  --chat-pattern: rgba(17, 27, 33, 0.04);
+  --chat-pattern: rgba(7, 94, 84, 0.05);
+  --glass: rgba(255, 255, 255, 0.7);
 }
 
 .dark {
@@ -38,37 +40,60 @@
 
 * {
   box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-html,
-body,
-#root {
+html, body, #root {
   margin: 0;
   width: 100%;
-  min-height: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
 body {
   font-family: "Manrope", sans-serif;
   color: var(--text-main);
-  background: linear-gradient(180deg, #00a884 0 128px, var(--bg-main) 128px 100%);
+  background-color: var(--bg-main);
 }
 
-.dark body {
-  background: linear-gradient(180deg, #0b7b6f 0 128px, var(--bg-main) 128px 100%);
-}
-
-.font-mono-display {
-  font-family: "DM Mono", monospace;
+.font-outfit {
+  font-family: "Outfit", sans-serif;
 }
 
 .chat-pattern {
   background-color: var(--bg-app);
-  background-image:
-    radial-gradient(var(--chat-pattern) 1px, transparent 1px),
-    radial-gradient(var(--chat-pattern) 1px, transparent 1px);
-  background-position:
-    0 0,
-    12px 12px;
+  background-image: 
+    radial-gradient(var(--chat-pattern) 1.5px, transparent 1.5px);
   background-size: 24px 24px;
 }
+
+.glass-morphism {
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-subtle);
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-[var(--accent)] text-white font-bold py-3 px-6 rounded-2xl shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2;
+  }
+}
+
