@@ -23,7 +23,10 @@ export default function MessageInput({ onSend, onTyping, onStopTyping }) {
   };
 
   return (
-    <div className="p-4 bg-[var(--bg-sidebar)] border-t border-[var(--line)]">
+    <div
+      className="shrink-0 border-t border-[var(--line)] bg-[var(--bg-sidebar)] p-4"
+      style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
+    >
       {selectedFile && (
         <div className="mb-3 flex items-center justify-between p-2 rounded-xl bg-[var(--bg-panel)] border border-[var(--line)] text-xs animate-in slide-in-from-bottom-2">
           <div className="flex items-center gap-2 truncate px-2">

@@ -126,7 +126,10 @@ export default function ChannelList({
       </div>
 
       {/* Footer Profile */}
-      <div className="p-4 border-t border-[var(--line)] bg-[var(--bg-app)]/50 backdrop-blur-sm">
+      <div
+        className="border-t border-[var(--line)] bg-[var(--bg-app)]/50 p-4 backdrop-blur-sm"
+        style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
+      >
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-full bg-[var(--accent-strong)] grid place-items-center text-white font-bold shadow-md">
             {currentUser?.username?.slice(0, 1).toUpperCase()}

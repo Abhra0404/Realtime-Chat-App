@@ -65,7 +65,7 @@ export default function ChatWindow({
   };
 
   return (
-    <section className="flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--bg-panel)] shadow-sm">
+    <section className="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--bg-panel)] shadow-sm">
       <ChatHeader 
         conversation={conversation}
         title={title}

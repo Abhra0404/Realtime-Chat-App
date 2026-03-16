@@ -428,7 +428,7 @@ export default function Chat({ token, user, onLogout }) {
   );
 
   const chatPane = (
-    <div className="flex h-full flex-col gap-0">
+    <div className="flex h-full min-h-0 flex-col gap-0">
       <ChatWindow
         conversation={activeConversation}
         title={activeTitle}
@@ -471,11 +471,11 @@ export default function Chat({ token, user, onLogout }) {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="h-screen bg-[var(--bg-app)] md:p-4 text-[var(--text-main)]"
+      className="h-[100dvh] overflow-hidden bg-[var(--bg-app)] text-[var(--text-main)] md:p-4"
     >
-      <div className="h-full max-w-[1600px] mx-auto flex gap-4 overflow-hidden">
+      <div className="mx-auto flex h-full min-h-0 max-w-[1600px] gap-4 overflow-hidden">
         {isMobile ? (
-          <div className="w-full h-full flex flex-col p-2">
+          <div className="flex h-full min-h-0 w-full flex-col p-2">
             {mobileView === "list" ? chatsListPane : chatPane}
           </div>
         ) : (
