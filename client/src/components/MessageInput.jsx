@@ -11,6 +11,12 @@ export default function MessageInput({ onSend, onTyping, onStopTyping }) {
     event.preventDefault();
     if (!value.trim() && !selectedFile) return;
 
+    const keepInputFocused = () => {
+      requestAnimationFrame(() => {
+        inputRef.current?.focus({ preventScroll: true });
+      });
+    };
+
     try {
       setIsSending(true);
       await onSend({ content: value.trim(), file: selectedFile });
@@ -19,6 +25,7 @@ export default function MessageInput({ onSend, onTyping, onStopTyping }) {
       onStopTyping();
     } finally {
       setIsSending(false);
+      keepInputFocused();
     }
   };
 
@@ -70,6 +77,7 @@ export default function MessageInput({ onSend, onTyping, onStopTyping }) {
           <button
             type="submit"
             disabled={isSending || (!value.trim() && !selectedFile)}
+            onMouseDown={(event) => event.preventDefault()}
             className="p-3.5 rounded-full bg-[var(--accent)] text-white shadow-lg shadow-[var(--accent)]/30 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:scale-100 disabled:shadow-none transition-all"
           >
             <Send size={20} fill="currentColor" />

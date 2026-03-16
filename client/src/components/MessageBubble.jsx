@@ -57,6 +57,30 @@ export default function MessageBubble({ message, currentUserId, memberMap, onRea
     };
   }, [contextMenu.open]);
 
+  useEffect(() => {
+    if (!contextMenu.open || !menuRef.current) return;
+
+    const menuWidth = menuRef.current.offsetWidth;
+    const menuHeight = menuRef.current.offsetHeight;
+    const maxX = Math.max(MENU_MARGIN, window.innerWidth - menuWidth - MENU_MARGIN);
+    const maxY = Math.max(MENU_MARGIN, window.innerHeight - menuHeight - MENU_MARGIN);
+    const clampedX = Math.min(Math.max(contextMenu.x, MENU_MARGIN), maxX);
+    const clampedY = Math.min(Math.max(contextMenu.y, MENU_MARGIN), maxY);
+
+    if (clampedX !== contextMenu.x || clampedY !== contextMenu.y) {
+      setContextMenu((previous) => ({ ...previous, x: clampedX, y: clampedY }));
+    }
+  }, [contextMenu]);
+
+  const clearLongPressTimer = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
+
+  useEffect(() => clearLongPressTimer, []);
+
   const mine = getSenderId(message.senderId) === currentUserId;
   const senderLabel = mine ? "You" : message.senderId?.username || "User";
   const mediaUrl = getMediaUrl(message.fileUrl);
@@ -79,10 +103,27 @@ export default function MessageBubble({ message, currentUserId, memberMap, onRea
     setIsEditing(false);
   };
 
+  const openContextMenuAt = (x, y) => {
+    setContextMenu({ open: true, x, y });
+  };
+
   const onOpenContextMenu = (e) => {
     e.preventDefault();
-    setContextMenu({ open: true, x: e.clientX, y: e.clientY });
+    openContextMenuAt(e.clientX, e.clientY);
   };
+
+  const onTouchStart = (event) => {
+    if (!event.touches?.length) return;
+    const touch = event.touches[0];
+    clearLongPressTimer();
+    longPressTimerRef.current = setTimeout(() => {
+      openContextMenuAt(touch.clientX, touch.clientY);
+      longPressTimerRef.current = null;
+    }, LONG_PRESS_MS);
+  };
+
+  const onTouchEnd = () => clearLongPressTimer();
+  const onTouchMove = () => clearLongPressTimer();
 
   return (
     <motion.div
@@ -91,6 +132,10 @@ export default function MessageBubble({ message, currentUserId, memberMap, onRea
       transition={{ duration: 0.2, ease: "easeOut" }}
       className={`group relative flex flex-col ${mine ? "items-end" : "items-start"} mb-2`}
       onContextMenu={onOpenContextMenu}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+      onTouchCancel={onTouchEnd}
+      onTouchMove={onTouchMove}
     >
       <div className={`flex items-end gap-2 max-w-[85%] md:max-w-[70%]`}>
         {!mine && (
@@ -157,25 +202,26 @@ export default function MessageBubble({ message, currentUserId, memberMap, onRea
 
       {contextMenu.open && (
         <div
+          ref={menuRef}
           className="fixed z-50 bg-[var(--bg-sidebar)] border border-[var(--line)] rounded-xl shadow-2xl p-1 w-40 overflow-hidden"
           style={{ top: contextMenu.y, left: contextMenu.x }}
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex justify-around p-1 border-b border-[var(--line)] mb-1">
             {EMOJIS.map(e => (
-              <button key={e} onClick={() => { onReact(message._id, e); setContextMenu({ open: false }); }} className="hover:scale-125 transition text-lg">{e}</button>
+              <button key={e} onClick={() => { onReact(message._id, e); setContextMenu({ open: false, x: 0, y: 0 }); }} className="hover:scale-125 transition text-lg">{e}</button>
             ))}
           </div>
           {mine && (
             <>
               <button 
-                onClick={() => { setIsEditing(true); setContextMenu({ open: false }); }}
+                onClick={() => { setIsEditing(true); setContextMenu({ open: false, x: 0, y: 0 }); }}
                 className="w-full text-left px-3 py-1.5 text-xs hover:bg-[var(--bg-panel)] transition"
               >
                 Edit Message
               </button>
               <button 
-                onClick={() => { onDelete(message._id); setContextMenu({ open: false }); }}
+                onClick={() => { onDelete(message._id); setContextMenu({ open: false, x: 0, y: 0 }); }}
                 className="w-full text-left px-3 py-1.5 text-xs text-red-500 hover:bg-red-500/10 transition"
               >
                 Delete Message
