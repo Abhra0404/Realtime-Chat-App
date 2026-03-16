@@ -21,9 +21,10 @@ const allowedOrigins = (process.env.CLIENT_ORIGIN || "http://localhost:5173,http
   .map((origin) => origin.trim())
   .filter(Boolean);
 const localDevOriginRegex = /^http:\/\/(localhost|127\.0\.0\.1):\d+$/;
+const vercelOriginRegex = /^https:\/\/[a-z0-9-]+\.vercel\.app$/i;
 
 const corsOrigin = (origin, callback) => {
-  if (!origin || allowedOrigins.includes(origin) || localDevOriginRegex.test(origin)) {
+  if (!origin || allowedOrigins.includes(origin) || localDevOriginRegex.test(origin) || vercelOriginRegex.test(origin)) {
     callback(null, true);
     return;
   }
