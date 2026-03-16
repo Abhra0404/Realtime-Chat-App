@@ -10,6 +10,17 @@ import { useSocket } from "../hooks/useSocket";
 
 const PAGE_SIZE = 20;
 
+const getMessagePreview = (message) => {
+  const type = message?.type || "text";
+  if (type === "image") {
+    return "[Image]";
+  }
+  if (type === "file") {
+    return "[File]";
+  }
+  return (message?.content || "").trim();
+};
+
 export default function Chat({ token, user, onLogout }) {
   const socket = useSocket(token);
   const currentUserId = user?._id || user?.id;
@@ -53,6 +64,32 @@ export default function Chat({ token, user, onLogout }) {
   }, [users, currentUserId, user]);
 
   const activePartnerId = activeConversation?.otherParticipant?._id || "";
+
+  const updateConversationFromMessage = (incomingMessage, { incrementUnread = false } = {}) => {
+    const conversationId = incomingMessage?.conversationId?.toString?.() || incomingMessage?.conversationId;
+    if (!conversationId) {
+      return;
+    }
+
+    const preview = getMessagePreview(incomingMessage);
+
+    setConversations((previous) => {
+      const index = previous.findIndex((conversation) => conversation._id === conversationId);
+      if (index === -1) {
+        return previous;
+      }
+
+      const target = previous[index];
+      const updatedConversation = {
+        ...target,
+        lastMessage: preview,
+        unreadCount: incrementUnread ? (target.unreadCount || 0) + 1 : 0,
+        updatedAt: incomingMessage?.createdAt || new Date().toISOString()
+      };
+
+      return [updatedConversation, ...previous.filter((_, itemIndex) => itemIndex !== index)];
+    });
+  };
 
   useEffect(() => {
     const init = async () => {
@@ -136,6 +173,7 @@ export default function Chat({ token, user, onLogout }) {
       const conversationId = message.conversationId?.toString?.() || message.conversationId;
       if (conversationId === activeConversation._id) {
         setMessages((prev) => [...prev, message]);
+        updateConversationFromMessage(message);
 
         const senderId = message.senderId?._id || message.senderId;
         if (senderId !== currentUserId) {
@@ -145,18 +183,7 @@ export default function Chat({ token, user, onLogout }) {
           });
         }
       } else {
-        setConversations((previous) =>
-          previous.map((conversation) => {
-            if (conversation._id !== conversationId) {
-              return conversation;
-            }
-            return {
-              ...conversation,
-              unreadCount: (conversation.unreadCount || 0) + 1,
-              lastMessage: message.type === "text" ? message.content : message.type === "image" ? "[Image]" : "[File]"
-            };
-          })
-        );
+        updateConversationFromMessage(message, { incrementUnread: true });
       }
     };
 
@@ -299,16 +326,12 @@ export default function Chat({ token, user, onLogout }) {
       sender: currentUserId
     });
 
-    setConversations((previous) =>
-      previous.map((conversation) =>
-        conversation._id === activeConversation._id
-          ? {
-              ...conversation,
-              lastMessage: type === "text" ? content : type === "image" ? "[Image]" : "[File]"
-            }
-          : conversation
-      )
-    );
+    updateConversationFromMessage({
+      conversationId: activeConversation._id,
+      type,
+      content,
+      createdAt: new Date().toISOString()
+    });
   };
 
   const reactToMessage = (messageId, emoji) => {
@@ -365,6 +388,17 @@ export default function Chat({ token, user, onLogout }) {
 
   const selectConversation = (conversation) => {
     setActiveConversation(conversation);
+    setConversations((previous) => {
+      const index = previous.findIndex((item) => item._id === conversation._id);
+      if (index === -1) {
+        return previous;
+      }
+      const selected = {
+        ...previous[index],
+        unreadCount: 0
+      };
+      return [selected, ...previous.filter((_, itemIndex) => itemIndex !== index)];
+    });
     if (isMobile) {
       setMobileView("chat");
     }
