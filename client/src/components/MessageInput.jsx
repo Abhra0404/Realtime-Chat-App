@@ -9,13 +9,19 @@ export default function MessageInput({ onSend, onTyping, onStopTyping }) {
 
   const submit = async (event) => {
     event.preventDefault();
+    if (isSending) return;
     if (!value.trim() && !selectedFile) return;
 
     const keepInputFocused = () => {
       requestAnimationFrame(() => {
         inputRef.current?.focus({ preventScroll: true });
       });
+      setTimeout(() => {
+        inputRef.current?.focus({ preventScroll: true });
+      }, 80);
     };
+
+    keepInputFocused();
 
     try {
       setIsSending(true);
@@ -78,6 +84,8 @@ export default function MessageInput({ onSend, onTyping, onStopTyping }) {
             type="submit"
             disabled={isSending || (!value.trim() && !selectedFile)}
             onMouseDown={(event) => event.preventDefault()}
+            onPointerDown={(event) => event.preventDefault()}
+            onTouchStart={(event) => event.preventDefault()}
             className="p-3.5 rounded-full bg-[var(--accent)] text-white shadow-lg shadow-[var(--accent)]/30 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:scale-100 disabled:shadow-none transition-all"
           >
             <Send size={20} fill="currentColor" />
