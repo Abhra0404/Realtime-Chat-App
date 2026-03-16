@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 const EMOJIS = ["👍", "❤️", "🔥", "😂", "😮"];
+const LONG_PRESS_MS = 450;
+const MENU_MARGIN = 8;
 
 const getSenderId = (sender) => {
   if (!sender) {
@@ -23,16 +25,79 @@ const getMediaUrl = (fileUrl) => {
   return `${socketBase}${fileUrl}`;
 };
 
+const getStatusLabel = (status) => {
+  if (status === "read") {
+    return "✓✓ read";
+  }
+  if (status === "delivered") {
+    return "✓✓ delivered";
+  }
+  return "✓ sent";
+};
+
 export default function MessageBubble({ message, currentUserId, memberMap, onReact, onEdit, onDelete }) {
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState(message.content || "");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [contextMenu, setContextMenu] = useState({ open: false, x: 0, y: 0 });
+  const menuRef = useRef(null);
+  const longPressTimerRef = useRef(null);
 
   useEffect(() => {
     if (!isEditing) {
       setDraft(message.content || "");
     }
   }, [message.content, isEditing]);
+
+  useEffect(() => {
+    if (!contextMenu.open) {
+      return;
+    }
+
+    const closeMenu = () => setContextMenu({ open: false, x: 0, y: 0 });
+    const onEscape = (event) => {
+      if (event.key === "Escape") {
+        closeMenu();
+      }
+    };
+
+    window.addEventListener("click", closeMenu);
+    window.addEventListener("scroll", closeMenu, true);
+    window.addEventListener("keydown", onEscape);
+
+    return () => {
+      window.removeEventListener("click", closeMenu);
+      window.removeEventListener("scroll", closeMenu, true);
+      window.removeEventListener("keydown", onEscape);
+    };
+  }, [contextMenu.open]);
+
+  useEffect(() => {
+    if (!contextMenu.open || !menuRef.current) {
+      return;
+    }
+
+    const menuWidth = menuRef.current.offsetWidth;
+    const menuHeight = menuRef.current.offsetHeight;
+    const maxX = Math.max(MENU_MARGIN, window.innerWidth - menuWidth - MENU_MARGIN);
+    const maxY = Math.max(MENU_MARGIN, window.innerHeight - menuHeight - MENU_MARGIN);
+
+    const clampedX = Math.min(Math.max(contextMenu.x, MENU_MARGIN), maxX);
+    const clampedY = Math.min(Math.max(contextMenu.y, MENU_MARGIN), maxY);
+
+    if (clampedX !== contextMenu.x || clampedY !== contextMenu.y) {
+      setContextMenu((previous) => ({ ...previous, x: clampedX, y: clampedY }));
+    }
+  }, [contextMenu]);
+
+  const clearLongPressTimer = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
+
+  useEffect(() => clearLongPressTimer, []);
 
   const mine = getSenderId(message.senderId) === currentUserId;
   const senderLabel = mine ? "You" : message.senderId?.username || "User";
@@ -80,8 +145,50 @@ export default function MessageBubble({ message, currentUserId, memberMap, onRea
     setShowDeleteConfirm(false);
   };
 
+  const openContextMenuAt = (x, y) => {
+    setContextMenu({ open: true, x, y });
+  };
+
+  const onOpenContextMenu = (event) => {
+    event.preventDefault();
+    openContextMenuAt(event.clientX, event.clientY);
+  };
+
+  const onTouchStart = (event) => {
+    if (!event.touches?.length) {
+      return;
+    }
+
+    const touch = event.touches[0];
+    clearLongPressTimer();
+    longPressTimerRef.current = setTimeout(() => {
+      openContextMenuAt(touch.clientX, touch.clientY);
+      longPressTimerRef.current = null;
+    }, LONG_PRESS_MS);
+  };
+
+  const onTouchEnd = () => {
+    clearLongPressTimer();
+  };
+
+  const onTouchMove = () => {
+    clearLongPressTimer();
+  };
+
+  const selectReaction = (emoji) => {
+    onReact(message._id, emoji);
+    setContextMenu({ open: false, x: 0, y: 0 });
+  };
+
   return (
-    <div className={`group relative flex ${mine ? "justify-end" : "justify-start"}`}>
+    <div
+      className={`group relative flex ${mine ? "justify-end" : "justify-start"}`}
+      onContextMenu={onOpenContextMenu}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+      onTouchCancel={onTouchEnd}
+      onTouchMove={onTouchMove}
+    >
       {showDeleteConfirm ? (
         <div className="fixed inset-0 z-40 grid place-items-center bg-slate-950/45 p-4">
           <div className="w-full max-w-sm rounded-2xl border border-[var(--line)] bg-[var(--bg-panel-strong)] p-4 shadow-soft">
@@ -107,16 +214,62 @@ export default function MessageBubble({ message, currentUserId, memberMap, onRea
         </div>
       ) : null}
 
+      {contextMenu.open ? (
+        <div
+          ref={menuRef}
+          className="fixed z-50 w-56 rounded-xl border border-[var(--line)] bg-[var(--bg-panel)] p-2 shadow-2xl"
+          style={{ top: contextMenu.y, left: contextMenu.x }}
+          onClick={(event) => event.stopPropagation()}
+        >
+          <p className="px-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-subtle)]">Reactions</p>
+          <div className="mb-2 flex flex-wrap gap-1 px-1">
+            {EMOJIS.map((emoji) => (
+              <button
+                key={emoji}
+                type="button"
+                onClick={() => selectReaction(emoji)}
+                className="rounded-full border border-[var(--line)] bg-[var(--bg-panel-strong)] px-2 py-1 text-sm"
+              >
+                {emoji}
+              </button>
+            ))}
+          </div>
+
+          {mine ? (
+            <>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsEditing(true);
+                  setContextMenu({ open: false, x: 0, y: 0 });
+                }}
+                className="w-full rounded-md px-2 py-2 text-left text-sm transition hover:bg-[var(--bg-panel-strong)]"
+              >
+                Edit message
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowDeleteConfirm(true);
+                  setContextMenu({ open: false, x: 0, y: 0 });
+                }}
+                className="w-full rounded-md px-2 py-2 text-left text-sm text-red-500 transition hover:bg-red-500/10"
+              >
+                Delete message
+              </button>
+            </>
+          ) : null}
+        </div>
+      ) : null}
+
       <div
-        className={`max-w-[75%] rounded-2xl px-4 py-2 text-sm shadow-sm ${
+        className={`max-w-[84%] rounded-lg px-3 py-2 text-sm shadow-sm md:max-w-[72%] ${
           mine
-            ? "bg-[var(--accent)] text-slate-950"
-            : "border border-[var(--line)] bg-[var(--bg-panel-strong)] text-[var(--text-main)]"
+            ? "bg-[var(--outgoing)] text-[var(--text-main)]"
+            : "bg-[var(--incoming)] text-[var(--text-main)]"
         }`}
       >
-        <p className="font-semibold text-xs opacity-80">
-          {senderLabel}
-        </p>
+        {!mine ? <p className="text-[11px] font-bold text-[var(--accent-strong)]">{senderLabel}</p> : null}
 
         {isEditing ? (
           <div className="mt-2 space-y-2">
@@ -143,7 +296,7 @@ export default function MessageBubble({ message, currentUserId, memberMap, onRea
             </div>
           </div>
         ) : (
-          <p className="mt-1 whitespace-pre-wrap break-words">{message.content}</p>
+          <p className="mt-0.5 whitespace-pre-wrap break-words leading-relaxed">{message.content}</p>
         )}
 
         {message.type === "image" && mediaUrl ? (
@@ -163,28 +316,20 @@ export default function MessageBubble({ message, currentUserId, memberMap, onRea
           </a>
         ) : null}
 
-        <div className="mt-2 flex flex-wrap gap-1">
-          {EMOJIS.map((emoji) => (
-            <button
-              key={emoji}
-              type="button"
-              onClick={() => onReact(message._id, emoji)}
-              className="rounded-md border border-[var(--line)] px-1.5 py-0.5 text-xs"
-            >
-              {emoji}
-            </button>
-          ))}
-        </div>
-
         {reactionSummary.length ? (
-          <p className="mt-1 text-[11px] opacity-75">
-            {reactionSummary.map(([emoji, count]) => `${emoji} ${count}`).join("  ")}
-          </p>
+          <div className="mt-1 flex flex-wrap gap-1">
+            {reactionSummary.map(([emoji, count]) => (
+              <span key={emoji} className="rounded-full bg-black/10 px-2 py-0.5 text-[10px] dark:bg-white/10">
+                {emoji} {count}
+              </span>
+            ))}
+          </div>
         ) : null}
 
-        <p className="mt-1 text-[10px] opacity-65">
+        <p className="mt-1 text-right text-[10px] text-[var(--text-subtle)]">
           {new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
           {message.editedAt ? " • edited" : ""}
+          {mine ? ` • ${getStatusLabel(message.status)}` : ""}
         </p>
 
         {mine && seenByMembers.length ? (
@@ -206,24 +351,6 @@ export default function MessageBubble({ message, currentUserId, memberMap, onRea
           </div>
         ) : null}
 
-        {mine && !isEditing ? (
-          <div className="mt-2 flex gap-2 opacity-0 transition group-hover:opacity-100">
-            <button
-              type="button"
-              onClick={() => setIsEditing(true)}
-              className="rounded-md border border-[var(--line)] px-2 py-1 text-xs"
-            >
-              Edit
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowDeleteConfirm(true)}
-              className="rounded-md border border-red-400 px-2 py-1 text-xs text-red-600"
-            >
-              Delete
-            </button>
-          </div>
-        ) : null}
       </div>
     </div>
   );

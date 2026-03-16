@@ -22,10 +22,20 @@ const messageSchema = new mongoose.Schema(
       ref: "User",
       required: true
     },
+    receiverId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true
+    },
+    conversationId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Conversation",
+      required: true
+    },
     roomId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Room",
-      required: true
+      required: false
     },
     content: {
       type: String,
@@ -46,6 +56,11 @@ const messageSchema = new mongoose.Schema(
         ref: "User"
       }
     ],
+    status: {
+      type: String,
+      enum: ["sent", "delivered", "read"],
+      default: "sent"
+    },
     reactions: [reactionSchema],
     editedAt: {
       type: Date,

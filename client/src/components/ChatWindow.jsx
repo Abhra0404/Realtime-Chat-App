@@ -2,7 +2,11 @@ import { useEffect, useRef } from "react";
 import MessageBubble from "./MessageBubble";
 
 export default function ChatWindow({
-  room,
+  conversation,
+  title,
+  subtitle,
+  showBackButton,
+  onBack,
   messages,
   currentUserId,
   typingUsers,
@@ -22,7 +26,7 @@ export default function ChatWindow({
     if (el && !isLoadingMore) {
       el.scrollTop = el.scrollHeight;
     }
-  }, [messages, room?._id, isLoadingMore]);
+  }, [messages, conversation?._id, isLoadingMore]);
 
   useEffect(() => {
     const el = scrollerRef.current;
@@ -58,19 +62,35 @@ export default function ChatWindow({
   };
 
   return (
-    <section className="flex h-full flex-col rounded-2xl border border-[var(--line)] bg-[var(--bg-panel)] p-4 backdrop-blur">
-      <header className="mb-4 border-b border-[var(--line)] pb-3">
-        <h2 className="text-xl font-bold">{room ? `# ${room.name}` : "Pick a room"}</h2>
+    <section className="flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--bg-panel)]">
+      <header className="flex items-center gap-3 border-b border-[var(--line)] bg-[var(--bg-sidebar)] px-4 py-3">
+        {showBackButton ? (
+          <button
+            type="button"
+            onClick={onBack}
+            className="grid h-9 w-9 place-items-center rounded-full border border-[var(--line)] bg-[var(--bg-panel)] text-lg"
+            aria-label="Back to chats"
+          >
+            ←
+          </button>
+        ) : null}
+        <span className="grid h-10 w-10 place-items-center rounded-full bg-[var(--accent-strong)] text-sm font-bold text-white">
+          {(title || "C").slice(0, 1).toUpperCase()}
+        </span>
+        <div>
+          <h2 className="text-base font-bold">{conversation ? title : "Pick a chat"}</h2>
+          {conversation ? <p className="text-xs text-[var(--text-subtle)]">{subtitle}</p> : null}
+        </div>
       </header>
 
-      <div ref={scrollerRef} onScroll={handleScroll} className="flex-1 space-y-3 overflow-y-auto pr-1">
+      <div ref={scrollerRef} onScroll={handleScroll} className="chat-pattern flex-1 space-y-3 overflow-y-auto px-3 py-4 md:px-6">
         {hasMore ? (
-          <p className="text-center text-xs text-[var(--text-subtle)]">
+          <p className="mx-auto w-fit rounded-full bg-black/10 px-3 py-1 text-center text-[11px] text-[var(--text-subtle)]">
             {isLoadingMore ? "Loading older messages..." : "Scroll up for older messages"}
           </p>
         ) : null}
         {messages.length === 0 ? (
-          <p className="text-sm text-[var(--text-subtle)]">No messages yet. Start the conversation.</p>
+          <p className="mx-auto mt-8 w-fit rounded-xl bg-black/10 px-4 py-2 text-sm text-[var(--text-subtle)]">No messages yet. Say hi.</p>
         ) : (
           messages.map((message) => (
             <MessageBubble
@@ -87,7 +107,7 @@ export default function ChatWindow({
       </div>
 
       {typingUsers.length ? (
-        <p className="mt-2 text-xs text-[var(--text-subtle)]">{typingUsers.join(", ")} typing...</p>
+        <p className="border-t border-[var(--line)] bg-[var(--bg-panel)] px-4 py-1.5 text-xs text-emerald-500">{typingUsers.join(", ")} typing...</p>
       ) : null}
     </section>
   );

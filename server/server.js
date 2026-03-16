@@ -8,6 +8,8 @@ const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const roomRoutes = require("./routes/roomRoutes");
 const messageRoutes = require("./routes/messageRoutes");
+const conversationRoutes = require("./routes/conversationRoutes");
+const userRoutes = require("./routes/userRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 const registerSocketHandlers = require("./socket/socket");
 
@@ -50,6 +52,8 @@ app.get("/api/health", (_req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/conversations", conversationRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/uploads", uploadRoutes);
 
 registerSocketHandlers(io);

@@ -20,16 +20,20 @@ export const authApi = {
   me: () => api.get("/auth/me")
 };
 
-export const roomsApi = {
-  list: () => api.get("/rooms"),
-  create: (payload) => api.post("/rooms", payload)
+export const usersApi = {
+  list: () => api.get("/users")
+};
+
+export const conversationsApi = {
+  list: () => api.get("/conversations"),
+  getOrCreateWithUser: (userId) => api.post(`/conversations/with/${userId}`),
+  listMessages: (conversationId, page = 1, limit = 20) =>
+    api.get(`/conversations/${conversationId}/messages`, {
+      params: { page, limit }
+    })
 };
 
 export const messagesApi = {
-  list: (roomId, page = 1, limit = 20) =>
-    api.get(`/messages/${roomId}`, {
-      params: { page, limit }
-    }),
   edit: (messageId, payload) => api.patch(`/messages/${messageId}`, payload),
   remove: (messageId) => api.delete(`/messages/${messageId}`)
 };
