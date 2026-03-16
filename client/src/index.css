@@ -17,7 +17,7 @@
   --accent-strong: #128c7e;
   --line: rgba(7, 94, 84, 0.1);
   --incoming: #ffffff;
-  --outgoing: #d9fdd3;
+  --outgoing: #1f6b52;
   --chat-pattern: rgba(7, 94, 84, 0.05);
   --glass: rgba(255, 255, 255, 0.7);
 }
@@ -34,7 +34,7 @@
   --accent-strong: #1f8f72;
   --line: rgba(233, 237, 239, 0.08);
   --incoming: #202c33;
-  --outgoing: #134d37;
+  --outgoing: #1a5a44;
   --chat-pattern: rgba(255, 255, 255, 0.03);
 }
 

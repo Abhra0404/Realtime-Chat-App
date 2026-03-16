@@ -102,7 +102,7 @@ export default function MessageBubble({ message, currentUserId, memberMap, onRea
         <div
           className={`relative px-4 py-2.5 rounded-2xl shadow-sm ${
             mine
-              ? "bg-[var(--accent)] text-white rounded-tr-sm"
+              ? "bg-[var(--outgoing)] text-white rounded-tr-sm"
               : "bg-[var(--bg-sidebar)] text-[var(--text-main)] rounded-tl-sm border border-[var(--line)]"
           }`}
         >

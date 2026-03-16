@@ -1,4 +1,4 @@
-import { Info, ChevronLeft, Phone, Video, Search, MoreVertical } from "lucide-react";
+import { Info, ChevronLeft, Search } from "lucide-react";
 
 export default function ChatHeader({ 
   conversation, 
@@ -44,12 +44,6 @@ export default function ChatHeader({
       </div>
 
       <div className="flex items-center gap-1 md:gap-2">
-        <button className="hidden md:grid h-9 w-9 place-items-center rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition text-[var(--text-subtle)]">
-          <Phone size={18} />
-        </button>
-        <button className="hidden md:grid h-9 w-9 place-items-center rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition text-[var(--text-subtle)]">
-          <Video size={18} />
-        </button>
         <button className="grid h-9 w-9 place-items-center rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition text-[var(--text-subtle)]">
           <Search size={18} />
         </button>
@@ -58,9 +52,6 @@ export default function ChatHeader({
           className="grid h-9 w-9 place-items-center rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition text-[var(--text-subtle)] hover:text-[var(--text-main)]"
         >
           <Info size={18} />
-        </button>
-        <button className="grid h-10 w-10 place-items-center rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition text-[var(--text-subtle)]">
-          <MoreVertical size={18} />
         </button>
       </div>
     </header>
