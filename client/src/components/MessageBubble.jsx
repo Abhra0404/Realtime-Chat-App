@@ -21,7 +21,12 @@ const getMediaUrl = (fileUrl) => {
   if (fileUrl.startsWith("http://") || fileUrl.startsWith("https://")) {
     return fileUrl;
   }
-  const socketBase = import.meta.env.VITE_SOCKET_URL || "http://localhost:5000";
+  const apiBaseUrl = import.meta.env.VITE_API_URL || "";
+  const derivedSocketUrlFromApi = apiBaseUrl ? apiBaseUrl.replace(/\/api\/?$/, "") : "";
+  const socketBase =
+    import.meta.env.VITE_SOCKET_URL ||
+    derivedSocketUrlFromApi ||
+    (import.meta.env.DEV ? "http://localhost:5000" : window.location.origin);
   const normalizedBase = socketBase.endsWith("/") ? socketBase.slice(0, -1) : socketBase;
   const normalizedPath = fileUrl.startsWith("/") ? fileUrl : `/${fileUrl}`;
   return `${normalizedBase}${normalizedPath}`;
