@@ -22,7 +22,9 @@ const getMediaUrl = (fileUrl) => {
     return fileUrl;
   }
   const socketBase = import.meta.env.VITE_SOCKET_URL || "http://localhost:5000";
-  return `${socketBase}${fileUrl}`;
+  const normalizedBase = socketBase.endsWith("/") ? socketBase.slice(0, -1) : socketBase;
+  const normalizedPath = fileUrl.startsWith("/") ? fileUrl : `/${fileUrl}`;
+  return `${normalizedBase}${normalizedPath}`;
 };
 
 const getStatusLabel = (status) => {
