@@ -34,19 +34,19 @@ export default function Login({ onLogin, onRegister }) {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg-main)] flex items-center justify-center p-4 md:p-8 relative overflow-hidden font-outfit transition-colors duration-500">
+    <div className="h-full bg-[var(--bg-main)] flex items-start md:items-center justify-center p-3 sm:p-4 md:p-8 relative overflow-hidden overflow-y-auto font-outfit transition-colors duration-500 pb-[env(safe-area-inset-bottom)]">
       {/* Immersive Background Glows */}
-      <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-[var(--accent)]/15 rounded-full blur-[140px] animate-pulse pointer-events-none" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-[var(--accent-strong)]/15 rounded-full blur-[140px] animate-pulse pointer-events-none" style={{ animationDelay: '2s' }} />
+      <div className="absolute top-[-25%] left-[-20%] w-[75%] h-[50%] sm:w-[60%] sm:h-[60%] bg-[var(--accent)]/15 rounded-full blur-[120px] sm:blur-[140px] animate-pulse pointer-events-none" />
+      <div className="absolute bottom-[-20%] right-[-20%] w-[75%] h-[50%] sm:w-[60%] sm:h-[60%] bg-[var(--accent-strong)]/15 rounded-full blur-[120px] sm:blur-[140px] animate-pulse pointer-events-none" style={{ animationDelay: "2s" }} />
 
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-4xl grid lg:grid-cols-2 rounded-[2rem] overflow-hidden shadow-[0_32px_120px_rgba(0,0,0,0.4)] border border-[var(--line)] bg-white/40 dark:bg-black/20 backdrop-blur-3xl"
+        className="w-full max-w-5xl grid md:grid-cols-2 rounded-2xl md:rounded-[2rem] overflow-hidden shadow-[0_24px_70px_rgba(0,0,0,0.28)] md:shadow-[0_32px_120px_rgba(0,0,0,0.4)] border border-[var(--line)] bg-white/40 dark:bg-black/20 backdrop-blur-3xl"
       >
         {/* Visual Narrative Section */}
-        <div className="relative p-10 lg:p-12 bg-gradient-to-br from-[var(--accent-strong)] via-[var(--accent-strong)] to-[var(--accent)] text-white flex flex-col justify-between overflow-hidden">
+        <div className="relative p-6 sm:p-8 lg:p-12 bg-gradient-to-br from-[var(--accent-strong)] via-[var(--accent-strong)] to-[var(--accent)] text-white flex flex-col justify-between overflow-hidden">
           {/* Subtle pattern overlay */}
           <div className="absolute inset-0 opacity-[0.07] pointer-events-none chat-pattern" />
           
@@ -54,19 +54,19 @@ export default function Login({ onLogin, onRegister }) {
             <motion.div 
               initial={{ x: -20, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
-              className="flex items-center gap-3 mb-10"
+              className="flex items-center gap-3 mb-7 sm:mb-10"
             >
-              <div className="h-12 w-12 bg-white rounded-xl grid place-items-center text-[var(--accent-strong)] shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
+              <div className="h-10 w-10 sm:h-12 sm:w-12 bg-white rounded-xl grid place-items-center text-[var(--accent-strong)] shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
                 <MessageSquare size={26} fill="currentColor" strokeWidth={1} />
               </div>
-              <span className="text-2xl font-black tracking-tighter uppercase italic">Pulse</span>
+              <span className="text-xl sm:text-2xl font-black tracking-tighter uppercase italic">Pulse</span>
             </motion.div>
             
             <motion.h1 
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="text-4xl md:text-5xl font-bold leading-[1.1] tracking-tight mb-6"
+              className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-[1.1] tracking-tight mb-4 sm:mb-6"
             >
               Connect at the <br/>
               <span className="text-white/40">Speed</span> of Life.
@@ -76,7 +76,7 @@ export default function Login({ onLogin, onRegister }) {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="grid gap-6 mt-10"
+              className="hidden sm:grid gap-6 mt-10"
             >
               <div className="flex gap-4 group items-center">
                 <div className="h-12 w-12 rounded-xl bg-white/10 backdrop-blur-md grid place-items-center shrink-0 border border-white/10 group-hover:bg-white/20 transition-all duration-300">
@@ -103,7 +103,7 @@ export default function Login({ onLogin, onRegister }) {
              initial={{ opacity: 0 }}
              animate={{ opacity: 1 }}
              transition={{ delay: 0.5 }}
-             className="relative z-10 pt-8 border-t border-white/10 mt-12 flex items-center justify-between"
+             className="relative z-10 pt-6 sm:pt-8 border-t border-white/10 mt-7 sm:mt-12 flex items-center justify-between"
           >
             <div className="flex -space-x-2">
               {[1,2,3,4].map(i => (
@@ -111,7 +111,7 @@ export default function Login({ onLogin, onRegister }) {
               ))}
               <div className="h-9 w-9 rounded-full border border-[var(--accent-strong)] bg-white text-[var(--accent-strong)] grid place-items-center text-[10px] font-bold shadow-lg">+2k</div>
             </div>
-            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white/40">Trusted by Experts</p>
+            <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] text-white/40">Trusted by Experts</p>
           </motion.div>
 
           {/* Abstract light beam */}
@@ -119,7 +119,7 @@ export default function Login({ onLogin, onRegister }) {
         </div>
 
         {/* Action Panel Section */}
-        <div className="p-10 lg:p-12 flex flex-col justify-center relative bg-white/80 dark:bg-[#0b141a]/95 backdrop-blur-3xl">
+        <div className="p-6 sm:p-8 lg:p-12 flex flex-col justify-center relative bg-white/80 dark:bg-[#0b141a]/95 backdrop-blur-3xl">
           <AnimatePresence mode="wait">
             {view === "landing" ? (
               <motion.div
@@ -127,26 +127,26 @@ export default function Login({ onLogin, onRegister }) {
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 1.02 }}
-                className="max-w-sm mx-auto w-full"
+                className="max-w-md mx-auto w-full"
               >
-                <div className="mb-8 text-center lg:text-left">
-                  <h2 className="text-3xl lg:text-4xl font-black text-[var(--text-main)] mb-3 tracking-tighter">Enter the Pulse.</h2>
+                <div className="mb-7 sm:mb-8 text-center md:text-left">
+                  <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[var(--text-main)] mb-3 tracking-tighter">Enter the Pulse.</h2>
                   <p className="text-[var(--text-subtle)] text-base leading-relaxed">Experience a communication suite designed for the modern era.</p>
                 </div>
 
                 <div className="grid gap-3">
-                  <button onClick={() => setView("form")} className="btn-primary h-14 text-base group shadow-xl">
+                  <button onClick={() => setView("form")} className="btn-primary h-12 sm:h-14 text-sm sm:text-base group shadow-xl">
                     Get Started <ArrowRight size={20} className="group-hover:translate-x-1 transition" />
                   </button>
                   <button 
                     onClick={() => { setIsRegister(true); setView("form"); }}
-                    className="h-14 rounded-xl border-2 border-[var(--line)] font-bold text-[var(--text-main)] hover:bg-[var(--bg-panel-strong)] hover:border-[var(--accent)]/30 transition-all flex items-center justify-center gap-2 text-sm"
+                    className="h-12 sm:h-14 rounded-xl border-2 border-[var(--line)] font-bold text-[var(--text-main)] hover:bg-[var(--bg-panel-strong)] hover:border-[var(--accent)]/30 transition-all flex items-center justify-center gap-2 text-sm"
                   >
                     Create Account
                   </button>
                 </div>
 
-                <div className="mt-12 flex flex-wrap items-center gap-4 justify-center lg:justify-start">
+                <div className="mt-9 sm:mt-12 flex flex-wrap items-center gap-4 justify-center md:justify-start">
                   <div className="flex items-center gap-2 text-[var(--text-subtle)]/80">
                     <CheckCircle2 size={16} className="text-[var(--accent)]" />
                     <span className="text-[9px] font-black uppercase tracking-widest">Encrypted</span>
@@ -163,7 +163,7 @@ export default function Login({ onLogin, onRegister }) {
                 initial={{ opacity: 0, x: 40 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -40 }}
-                className="max-w-sm mx-auto w-full"
+                className="max-w-md mx-auto w-full"
               >
                 <button 
                   onClick={() => setView("landing")} 
@@ -173,7 +173,7 @@ export default function Login({ onLogin, onRegister }) {
                 </button>
 
                 <div className="mb-8">
-                  <h2 className="text-3xl font-black text-[var(--text-main)] mb-1 tracking-tighter">
+                  <h2 className="text-2xl sm:text-3xl font-black text-[var(--text-main)] mb-1 tracking-tighter">
                     {isRegister ? "Join Us." : "Welcome."}
                   </h2>
                   <p className="text-[var(--text-subtle)] text-sm font-medium">Your global communication starts here.</p>
@@ -251,7 +251,7 @@ export default function Login({ onLogin, onRegister }) {
       </motion.div>
 
       {/* Footer minimal info */}
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-8 text-[10px] font-black uppercase tracking-[0.4em] text-[var(--text-subtle)]/30 pointer-events-none">
+      <div className="hidden md:flex fixed bottom-8 left-1/2 -translate-x-1/2 items-center gap-8 text-[10px] font-black uppercase tracking-[0.4em] text-[var(--text-subtle)]/30 pointer-events-none">
         <span>Privacy</span>
         <div className="h-1.5 w-1.5 bg-current rounded-full" />
         <span>Nodes</span>
